@@ -4,23 +4,53 @@ import '../App.css';
 const Todo = () => {
   const [inputData, setInputData] = useState('');
   const [items, setItems] = useState([]);
+  const [toggleSubmit, setToggleSubmit] = useState(true);
+  const [isEditItem, setIsEditItem] = useState(null);
+
   const addItem = () => {
-    if(!inputData){}
+    if(!inputData){
+      alert('pleae enter the data')
+    }
+    else if(inputData && !toggleSubmit) {
+setItems(
+  items.map((elem) => {
+    if (elem.id === isEditItem){
+      return {...elem, name:inputData}
+    }
+    return elem;
+  })
+)
+    setToggleSubmit(true);
+    setInputData('');
+    setIsEditItem(null);
+    }
     else {
-    setItems([...items, inputData]);
+    const allInputData = {id : new Date().getTime().toString(), name: inputData}
+    setItems([...items, allInputData]);
     setInputData('')
     }
      
   }
-  const deleteItem = (id) => {
-    const updateditems = items.filter((elem, ind) =>{
-      return ind !== id;
+  const deleteItem = (index) => {
+    const updateditems = items.filter((elem) =>{
+      return index !== elem.id;
     })
     setItems(updateditems);
   }
   const removeAll = () => {
     setItems([]);
   }
+
+  const editItem = (id) => {
+    let newEditItem = items.find((elem) => {
+      return( elem.id === id)
+    });
+    setToggleSubmit(false);
+    setInputData(newEditItem.name);
+    setIsEditItem(id);
+  }
+
+
   return (
     <>
     <div className='main-div'>
@@ -34,16 +64,23 @@ const Todo = () => {
             value={inputData}
             onChange={(e) => setInputData(e.target.value)}
           />
-          <i className="fa fa-plus add-btn" title='Add Item' onClick={addItem}></i>
+          {
+            toggleSubmit ? <i className="fa fa-plus add-btn" title='Add Item' onClick={addItem}></i>:
+          <i className="fa fa-edit add-btn" title='Update Item' onClick={addItem}></i>
+          }
         </div>
         <div className='showItems'>
 
         {
-          items.map((elem, ind) => {
+          items.map((elem) => {
             return (
-            <div className='eachItem' key={ind}>
-              <h3>{elem}</h3>
-              <i className="far fa-trash-alt add-btn" title='Delete Item' onClick={() => deleteItem(ind)}></i>
+            <div className='eachItem' key={elem.id}>
+              <h3>{elem.name}</h3>
+              <div className='todo-btn'>
+              <i className="far fa-edit add-btn" title='Edit Item' onClick={() => editItem(elem.id)}></i>
+              <i className="far fa-trash-alt add-btn" title='Delete Item' onClick={() => deleteItem(elem.id)}></i>
+              </div>
+              
             </div>
           )
           })
